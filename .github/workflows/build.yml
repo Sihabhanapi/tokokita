@@ -1,0 +1,39 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Build APK (arm32 + arm64, release)
+        run: gradle assembleRelease --no-daemon
+
+      - name: Upload APK armeabi-v7a
+        uses: actions/upload-artifact@v4
+        with:
+          name: TokoKita-armeabi-v7a
+          path: app/build/outputs/apk/arm32/release/*.apk
+
+      - name: Upload APK arm64-v8a
+        uses: actions/upload-artifact@v4
+        with:
+          name: TokoKita-arm64-v8a
+          path: app/build/outputs/apk/arm64/release/*.apk
