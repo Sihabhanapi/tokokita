@@ -8,32 +8,45 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    defaults:
+      run:
+        working-directory: tokokita
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.7"
+          gradle-version: '8.7'
 
-      - name: Build APK (arm32 + arm64, release)
-        run: gradle assembleRelease --no-daemon
+      - name: Build arm32 release
+        run: gradle assembleArm32Release --no-daemon
+
+      - name: Build arm64 release
+        run: gradle assembleArm64Release --no-daemon
 
       - name: Upload APK armeabi-v7a
         uses: actions/upload-artifact@v4
         with:
           name: TokoKita-armeabi-v7a
-          path: app/build/outputs/apk/arm32/release/*.apk
+          path: tokokita/app/build/outputs/apk/arm32/release/*.apk
+          if-no-files-found: error
 
       - name: Upload APK arm64-v8a
         uses: actions/upload-artifact@v4
         with:
           name: TokoKita-arm64-v8a
-          path: app/build/outputs/apk/arm64/release/*.apk
+          path: tokokita/app/build/outputs/apk/arm64/release/*.apk
+          if-no-files-found: error
